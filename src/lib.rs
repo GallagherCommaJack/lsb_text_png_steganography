@@ -1,7 +1,6 @@
-
 extern crate image;
 
-use image::{ ImageBuffer, GenericImageView };
+use image::{GenericImageView, ImageBuffer};
 
 #[cfg(test)]
 mod tests;
@@ -10,9 +9,7 @@ mod file_helpers;
 mod hider;
 mod revealer;
 
-pub fn hide<'a>(payload_path: &str, carrier_path: &'a str)
-     -> ImageBuffer<image::Rgb<u8>, Vec<u8>> {
-
+pub fn hide<'a>(payload_path: &str, carrier_path: &'a str) -> ImageBuffer<image::Rgb<u8>, Vec<u8>> {
     let _payload = file_helpers::get_file_string(payload_path);
     let carrier = image::open(carrier_path).unwrap();
 
@@ -22,11 +19,11 @@ pub fn hide<'a>(payload_path: &str, carrier_path: &'a str)
 
     for (x, y, pixel) in img.enumerate_pixels_mut() {
         let carrier_pixel = carrier.get_pixel(x, y);
-        
+
         *pixel = image::Rgb([
             carrier_pixel.data[0],
             carrier_pixel.data[1],
-            carrier_pixel.data[2]
+            carrier_pixel.data[2],
         ]);
     }
 
