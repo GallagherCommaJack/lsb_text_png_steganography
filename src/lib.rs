@@ -15,7 +15,7 @@ pub fn hide<'a>(payload_path: &str, carrier_path: &'a str) -> ImageBuffer<image:
 
     let (carrier_x_limit, carrier_y_limit) = carrier.dimensions();
 
-    if hider::is_payload_too_large(payload.len(), carrier_x_limit, carrier_y_limit) {
+    if hider::is_payload_too_large(payload.len() as u32, carrier_x_limit, carrier_y_limit) {
         panic!("Payload is too large for the carrier image");
     }
 
