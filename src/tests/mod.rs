@@ -2,11 +2,12 @@ use super::*;
 
 #[test]
 fn hide_payload() {
-    let payload_path = "./src/tests/texts/small.txt";
-    let carrier_path = "./src/tests/texts/carrier_sonnet.png";
+    let payload_path = "./src/tests/texts/payload_haiku.txt";
+    let carrier_path = "./src/tests/images/arrow.png";
 
-    let _image = hide(payload_path, carrier_path);
-    assert!(false);
+    let img = hide(payload_path, carrier_path);
+    // Need to test that we have actually put the text in!
+    assert_eq!(img.dimensions(), (340, 148));
 }
 
 #[test]
