@@ -15,7 +15,7 @@ fn hide_payload() {
 
 #[test]
 fn reveal_hidden_text() {
-    let carrier_path = "./src/tests/texts/hidden.png";
+    let carrier_path = "./src/tests/images/hidden.png";
     let _text = reveal(carrier_path);
     assert!(false);
 }
