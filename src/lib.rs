@@ -42,31 +42,16 @@ pub fn hide<'a>(payload_path: &str, carrier_path: &'a str) -> ImageBuffer<image:
         let carrier_pixel = carrier.get_pixel(x, y);
         pixel_seen_count = pixel_seen_count + 1;
 
-        // Need to get this 1000 correct
-        if pixel_seen_count < 1000 {
+        if pixel_seen_count < (vec.len() * 3) {
             if byte_cursor > 7 {
                 byte_cursor = 0;
             };
 
-            //println!("{} {:b} {:b} {}", current_byte, carrier_pixel.data[0], change_last_bit(carrier_pixel.data[0], get_bit_at(current_byte, byte_cursor)), byte_cursor);
-            //println!("{} {:b} {:b} {}", current_byte, carrier_pixel.data[1], change_last_bit(carrier_pixel.data[1], get_bit_at(current_byte, byte_cursor + 1)), byte_cursor);
-            //println!("{:b} {:b} {:b} {} - M", current_byte, carrier_pixel.data[2], change_last_bit(carrier_pixel.data[2], get_bit_at(current_byte, byte_cursor + 2)), byte_cursor);
-            // each of these bits need to be modified to have some of the payload in it.
-
-            let one = change_last_bit(carrier_pixel.data[0], get_bit_at(current_byte, byte_cursor));
-            println!("{:b}", one);
-            let two = change_last_bit(
-                carrier_pixel.data[1],
-                get_bit_at(current_byte, byte_cursor + 1),
-            );
-            println!("{:b}", two);
-            let three = change_last_bit(
-                carrier_pixel.data[2],
-                get_bit_at(current_byte, byte_cursor + 2),
-            );
-            println!("{:b}", three);
-
-            *pixel = image::Rgb([one, two, three]);
+            *pixel = image::Rgb([
+                change_last_bit(carrier_pixel.data[0], get_bit_at(current_byte, byte_cursor)),
+                change_last_bit(carrier_pixel.data[1], get_bit_at(current_byte, byte_cursor + 1)),
+                change_last_bit(carrier_pixel.data[2], get_bit_at(current_byte, byte_cursor + 2)),
+            ]);
             byte_cursor = byte_cursor + 3;
 
             if pixel_seen_count % 3 == 0 {
@@ -89,7 +74,7 @@ pub fn reveal(carrier_path: &str) -> String {
 
     let (carrier_x_limit, carrier_y_limit) = carrier.dimensions();
 
-    // Get the number out <-- can't do this yet
+    // Get the number out
     // Get the bytes out
     // Change bytes to String
 
@@ -107,6 +92,7 @@ pub fn reveal(carrier_path: &str) -> String {
                     byte |= (get_bit_at(carrier_pixel.data[i], 0) as u8) << byte_cursor;
                     byte_cursor = byte_cursor + 1;
                 } else {
+                    println!("{}", byte);
                     vec.push(byte);
                     byte = 0b0000_0000;
                     byte_cursor = 0;
@@ -114,10 +100,7 @@ pub fn reveal(carrier_path: &str) -> String {
             }
         }
     }
-    println!(
-        "{:b}, {:b}, {:b}, {:b}, {:?}",
-        vec[0], vec[1], vec[2], vec[3], vec[4]
-    );
+    
 
     String::from("win")
 }
