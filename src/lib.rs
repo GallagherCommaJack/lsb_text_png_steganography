@@ -1,6 +1,7 @@
 extern crate image;
 
 use image::{GenericImageView, ImageBuffer};
+use std::str;
 
 #[cfg(test)]
 mod tests;
@@ -33,8 +34,6 @@ pub fn hide<'a>(payload_path: &str, carrier_path: &'a str) -> ImageBuffer<image:
 
     let mut img: image::RgbImage = ImageBuffer::new(carrier_x_limit, carrier_y_limit);
 
-    // This is stuffed because we don't
-
     let mut pixel_seen_count = 0;
     let mut current_byte = *bytes_to_hide.next().unwrap();
 
@@ -42,19 +41,25 @@ pub fn hide<'a>(payload_path: &str, carrier_path: &'a str) -> ImageBuffer<image:
         let carrier_pixel = carrier.get_pixel(x, y);
         pixel_seen_count = pixel_seen_count + 1;
 
-        if pixel_seen_count < (vec.len() * 3) {
+        if pixel_seen_count <= (vec.len() * 3) {
             if byte_cursor > 7 {
                 byte_cursor = 0;
             };
 
             *pixel = image::Rgb([
                 change_last_bit(carrier_pixel.data[0], get_bit_at(current_byte, byte_cursor)),
-                change_last_bit(carrier_pixel.data[1], get_bit_at(current_byte, byte_cursor + 1)),
-                change_last_bit(carrier_pixel.data[2], get_bit_at(current_byte, byte_cursor + 2)),
+                change_last_bit(
+                    carrier_pixel.data[1],
+                    get_bit_at(current_byte, byte_cursor + 1),
+                ),
+                change_last_bit(
+                    carrier_pixel.data[2],
+                    get_bit_at(current_byte, byte_cursor + 2),
+                ),
             ]);
             byte_cursor = byte_cursor + 3;
 
-            if pixel_seen_count % 3 == 0 {
+            if pixel_seen_count % 3 == 0 && pixel_seen_count != (vec.len() * 3) {
                 current_byte = *bytes_to_hide.next().unwrap();
             }
         } else {
@@ -69,38 +74,51 @@ pub fn hide<'a>(payload_path: &str, carrier_path: &'a str) -> ImageBuffer<image:
     img
 }
 
+fn get_number_of_bytes_in_message(four_bytes: &[u8]) -> u32 {
+    (((*four_bytes)[0] as u32) << 24)
+        + (((*four_bytes)[1] as u32) << 16)
+        + (((*four_bytes)[2] as u32) << 8)
+        + (((*four_bytes)[3] as u32) << 0)
+}
+
 pub fn reveal(carrier_path: &str) -> String {
+    // Just wrote but this needs a refactor!
+
     let carrier = image::open(carrier_path).unwrap();
 
     let (carrier_x_limit, carrier_y_limit) = carrier.dimensions();
 
-    // Get the number out
-    // Get the bytes out
-    // Change bytes to String
+    let message_header_length = 4;
 
     let mut byte_cursor = 0;
     let mut byte = 0b0000_0000;
     let mut vec: Vec<u8> = Vec::new();
 
-    for y in 0..carrier_y_limit {
+    let mut byte_counter = 0;
+    let mut bytes_in_message: u32 = 5;
+
+    'outer: for y in 0..carrier_y_limit {
         for x in 0..carrier_x_limit {
             let carrier_pixel = carrier.get_pixel(x, y);
             for i in 0..3 {
-                // TODO: This read does not get the same values that is written above
-                //println!("{:b}", carrier_pixel.data[i]);
+                if byte_counter == bytes_in_message + message_header_length {
+                    break 'outer;
+                }
                 if byte_cursor < 8 {
                     byte |= (get_bit_at(carrier_pixel.data[i], 0) as u8) << byte_cursor;
                     byte_cursor = byte_cursor + 1;
                 } else {
-                    println!("{}", byte);
                     vec.push(byte);
+                    byte_counter = byte_counter + 1;
+                    if byte_counter == message_header_length {
+                        bytes_in_message = get_number_of_bytes_in_message(vec.as_slice());
+                    };
                     byte = 0b0000_0000;
                     byte_cursor = 0;
                 }
             }
         }
     }
-    
 
-    String::from("win")
+    String::from(str::from_utf8(&vec[4..]).unwrap())
 }
