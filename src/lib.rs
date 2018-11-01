@@ -74,13 +74,6 @@ pub fn hide<'a>(payload_path: &str, carrier_path: &'a str) -> ImageBuffer<image:
     img
 }
 
-fn get_number_of_bytes_in_message(four_bytes: &[u8]) -> u32 {
-    (((*four_bytes)[0] as u32) << 24)
-        + (((*four_bytes)[1] as u32) << 16)
-        + (((*four_bytes)[2] as u32) << 8)
-        + (((*four_bytes)[3] as u32) << 0)
-}
-
 pub fn reveal(carrier_path: &str) -> String {
     // Just wrote but this needs a refactor!
 
@@ -111,7 +104,7 @@ pub fn reveal(carrier_path: &str) -> String {
                     vec.push(byte);
                     byte_counter = byte_counter + 1;
                     if byte_counter == message_header_length {
-                        bytes_in_message = get_number_of_bytes_in_message(vec.as_slice());
+                        bytes_in_message = revealer::get_number_of_bytes_in_message(vec.as_slice());
                     };
                     byte = 0b0000_0000;
                     byte_cursor = 0;
