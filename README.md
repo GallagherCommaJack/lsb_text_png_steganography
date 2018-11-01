@@ -31,12 +31,12 @@ fn run () {
     let carrier_path = "./images/carrier.png";
     let output_carrier_path = "./output_carrier.png";
    
-    // Coming soon. . .
+   // hide
+    let img = hide(payload_path, carrier_path);
+    img.save(output_path).unwrap();
+
+    // reveal
+    let text = reveal(output_path);
+    println!(text)
 }
 ```
-
-## Documentation
-
-Read it. . .(coming soon)
-
-

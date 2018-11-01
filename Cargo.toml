@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Peter Heesterman <heesterman.peter@gmail.com>"]
 
 description = "A steganography strategy that uses the least significant bits of a png to hide text"
-repository = "https://github.com/peterheesterman/whitespace_text_steganography"
+repository = "https://github.com/peterheesterman/lsb_text_png_steganography"
 readme = "./README.md"
 keywords = ["steganography", "steg", "hiding", "text", "png"]
 categories = ["command-line-interface", "encoding", "text-processing"]
