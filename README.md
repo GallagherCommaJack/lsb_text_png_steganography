@@ -1,6 +1,3 @@
-
-# ( Work in progress )
-
 # lsb_text_png_steganography
 
 (Least significant bit text into portable network graphic steganography)
